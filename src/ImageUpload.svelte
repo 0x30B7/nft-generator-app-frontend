@@ -1,5 +1,18 @@
 <script>
 	import { onMount } from "svelte";
+	import { Modals, closeModal, openModal, modals } from "svelte-modals";
+	import Modal from "./Modal.svelte";
+
+	// import { addLayer, getLayers } from "./layers";
+	import LayerStepEditor from "./LayerStepsEditor.svelte";
+	import NftViewer from "./NFTViewer.svelte";
+
+	import {
+		URL_LAYER_UPLOAD,
+		URL_FETCH_LAYER_LIST,
+		URL_FETCH_LAYER,
+		URL_MINT_NFT
+	} from "./api";
 
 	let fileinput;
 
@@ -11,8 +24,18 @@
 	// forma, kad sudelioti json objekta.
 	// ir kai bus surinkta forma, i layerius detis.
 	function addLayer(id, src) {
-		let newLayer = { id, src, isSelected: false };
+		let newLayer = {
+			id,
+			src,
+			isSelected: false,
+			steps: [
+				// { type: "color-fill", properties: { color: "#000000" } },
+				// { type: "blur", properties: { radius: 4 } },
+			], // { type: "color-fill", properties: { color: "#ececec"} }
+		};
+
 		layers.push(newLayer);
+		console.log(newLayer);
 		return newLayer;
 	}
 
@@ -31,10 +54,10 @@
 			let newLayer = addLayer(-1, e.target.result);
 
 			const fd = new FormData();
-			fd.append("avatar", targetFile);
+			fd.append("layerImage", targetFile);
 			targetFile = undefined;
 
-			fetch("http://localhost:8081/api/v1/test/file-upload", {
+			fetch(URL_LAYER_UPLOAD, {
 				method: "POST",
 				headers: {
 					"Access-Control-Allow-Origin": "*",
@@ -42,7 +65,10 @@
 				body: fd,
 			})
 				.then((res) => res.json())
-				.then((json) => (newLayer.id = json.id))
+				.then((json) => {
+					newLayer.id = json.id;
+					layers = layers;
+				})
 				.catch((err) => console.error(err));
 
 			layers = layers;
@@ -50,8 +76,13 @@
 		reader.readAsDataURL(targetFile);
 	};
 
+	let dataFetched = false;
+
 	onMount(() => {
-		fetch("http://localhost:8081/api/v1/test/file-fetch/all", {
+		if (dataFetched) return;
+		dataFetched = true;
+
+		fetch(URL_FETCH_LAYER_LIST, {
 			method: "GET",
 			headers: {
 				"Access-Control-Allow-Origin": "*",
@@ -63,15 +94,12 @@
 					let newLayer = addLayer(entry.id, null);
 
 					try {
-						let response = await fetch(
-							`http://localhost:8081/api/v1/test/file-fetch/${entry.id}`,
-							{
-								method: "GET",
-								headers: {
-									"Access-Control-Allow-Origin": "*",
-								},
-							}
-						);
+						let response = await fetch(URL_FETCH_LAYER + entry.id, {
+							method: "GET",
+							headers: {
+								"Access-Control-Allow-Origin": "*",
+							},
+						});
 
 						console.log("loading " + entry.id);
 
@@ -90,6 +118,65 @@
 			})
 			.catch((err) => console.error(err));
 	});
+
+	//----------------------------------------form submit part--------------------------------------------------------
+
+	let width = 400;
+	let height = 400;
+
+	function handleBtnSubmit() {
+		let payload = { width, height, resources: [], layers: [] };
+
+		for (let layer of layers) {
+			if (!layer.isSelected) continue;
+
+			payload.layers.push({
+				imageId: layer.id,
+				steps: layer.steps,
+			});
+		}
+
+		fetch(URL_MINT_NFT, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Access-Control-Allow-Origin": "*",
+			},
+			body: JSON.stringify(payload),
+		})
+			.then(async (res) => {
+				if (res.status === 200) {
+					let jsonResponse = await res.json();
+					let nftImageId = jsonResponse.id;
+
+					openModal(NftViewer, {
+						title: "Yes",
+						nftImageId,
+						openItself: (props) => {
+							openModal(NftViewer, props)
+						}
+					});
+				}
+
+				return res;
+			})
+			.catch(console.log);
+	}
+
+	
+	// MODALS
+
+	function handleCustomizeLayer(e, layer) {
+		e.preventDefault();
+		openModal(LayerStepEditor, {
+			layer,
+			title: `Alert #${$modals.length + 1}`,
+			message: "This is an alert",
+			onOpenAnother: () => {
+				handleCustomizeLayer(e, layer);
+			},
+		});
+	}
 </script>
 
 <div id="app">
@@ -118,44 +205,72 @@
 		bind:this={fileinput}
 	/>
 
-	
-
 	<button on:click={onTargetFileConfirmed}>Upload</button>
 	<!--         {#if avatar}
         <img class="avatar" src="{avatar}" alt="d" />
         {:else}
         <img class="avatar" src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png" alt="" /> 
         {/if} -->
-		<div>
-			<h2>Select images to render</h2>
-		</div>
-
-		<div>
-			<form>
-				<label for="email">Email</label>
-				<input type="email" name="email" id="email" />
-			  
-				<button type="submit">Submit</button>
-			  </form>
-		</div>
-
+	<div>
+		<h2>Select images to render</h2>
 	</div>
 
-<div class="flex-container">
-	{#each layers as layer}
-		{#if layer.id !== -1 && layer.src !== null}
-			<div>
-				<img
-					class={layer.isSelected ? "avatar-selected" : "avatar"}
-					src={layer.src}
-					alt="d"
-					on:click={() => {
-						layer.isSelected = !layer.isSelected;
-					}}
-				/>
+	<div>
+		<form class="contact-form">
+			<div class="flex-label">
+				<label for="email">Email</label>
+				<input type="email" name="email" id="email" />
 			</div>
-		{/if}
-	{/each}
+
+			<div class="flex-container">
+				{#each layers as layer}
+					{#if layer.id !== -1 && layer.src !== null}
+						<div>
+							<img
+								id={layer.id}
+								class={layer.isSelected
+									? "avatar-selected"
+									: "avatar"}
+								src={layer.src}
+								name="topics"
+								alt="d"
+								on:click={() => {
+									layer.isSelected = !layer.isSelected;
+								}}
+							/>
+
+							<div class="img-btn">
+								<button
+									on:click={(event) =>
+										handleCustomizeLayer(event, layer)}
+								>
+									Customize
+								</button>
+							</div>
+							<Modals>
+								<div
+									slot="backdrop"
+									class="backdrop"
+									on:click={closeModal}
+								/>
+							</Modals>
+						</div>
+					{/if}
+				{/each}
+			</div>
+
+			<div class="flex-label">
+				<button on:click|preventDefault={handleBtnSubmit} type="submit"
+					>Submit</button
+				>
+			</div>
+		</form>
+	</div>
+</div>
+<!-- result maybe? pleasE? no? FAK -->
+<div class="results">
+	<h2>Form Data</h2>
+	<pre />
 </div>
 
 <style>
@@ -166,23 +281,31 @@
 		flex-flow: column;
 	}
 
+	.img-btn {
+		align-items: center;
+		justify-content: center;
+		display: flex;
+		margin: 5px;
+	}
+
+	label {
+		align-items: center;
+
+		margin: 10px;
+	}
+
 	.upload {
 		display: flex;
 		height: 50px;
 		width: 50px;
 		cursor: pointer;
 	}
-	.avatar {
-		
-	}
 
-	/* Clearfix (clear floats) */
-
-	
 	img.avatar {
 		width: 300px;
 		height: 300px;
 		margin: 5px;
+		border: 2px solid black;
 	}
 
 	img.avatar-selected {
@@ -192,17 +315,23 @@
 		border: 2px solid blueviolet;
 	}
 
+	.flex-label {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		margin: 30px 5px 15px 20px;
+	}
+
 	.flex-container {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	margin: 30px 5px 15px 20px;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		margin: 30px 5px 15px 20px;
 	}
 
 	.flex-container > div {
-	width: 350;
-	height: 350;
-	margin: 5;
-	
+		width: 350;
+		height: 350;
+		margin: 5;
 	}
 </style>
