@@ -76,6 +76,18 @@
                                 <h3 style={"color:" + step.properties.color}>{step.type}</h3>
                             {:else if step.type === "blur"}
                                 <h3>{step.type} ({step.properties.radius ?? 0})</h3>
+                            {:else if step.type === "grayscale-color"}
+                                <h3>{step.type}</h3>
+                            {:else if step.type === "negative-color-fill-step"}
+                                <h3>{step.type}</h3>
+                            {:else if step.type === "brighten"}
+                                <h3>{step.type} ({step.properties.factor ?? 0})</h3>
+                            {:else if step.type === "horizontal-flip"}
+                                <h3>{step.type}</h3>
+                            {:else if step.type === "rotate-clockwise"}
+                                <h3>{step.type} ({step.properties.times ?? 0})</h3>
+                            {:else if step.type === "smooth-color-fill"}
+                            <h3 style={"Smooth-color:" + step.properties.color}>{step.type}</h3>
                             {/if}
                             
                         </div>

@@ -28,6 +28,7 @@
 			id,
 			src,
 			isSelected: false,
+			selectionOrder: 0,
 			steps: [
 				// { type: "color-fill", properties: { color: "#000000" } },
 				// { type: "blur", properties: { radius: 4 } },
@@ -38,6 +39,8 @@
 		console.log(newLayer);
 		return newLayer;
 	}
+
+	let currentSelectionOrderIndex = 0;
 
 	const onFileSelected = (e) => {
 		targetFile = e.target.files[0];
@@ -136,6 +139,10 @@
 			});
 		}
 
+		payload.layers = payload.layers.sort((a, b) => a.selectionOrder - b.selectionOrder);
+
+		console.log(payload)
+
 		fetch(URL_MINT_NFT, {
 			method: "POST",
 			headers: {
@@ -218,8 +225,6 @@
 	<div>
 		<form class="contact-form">
 			<div class="flex-label">
-				<label for="email">Email</label>
-				<input type="email" name="email" id="email" />
 			</div>
 
 			<div class="flex-container">
@@ -236,6 +241,10 @@
 								alt="d"
 								on:click={() => {
 									layer.isSelected = !layer.isSelected;
+									
+									if (layer.isSelected) {
+										layer.selectionOrder = ++currentSelectionOrderIndex;
+									}
 								}}
 							/>
 
@@ -268,10 +277,7 @@
 	</div>
 </div>
 <!-- result maybe? pleasE? no? FAK -->
-<div class="results">
-	<h2>Form Data</h2>
-	<pre />
-</div>
+
 
 <style>
 	#app {

@@ -57,6 +57,19 @@
                     </div>
                 </div>
             </div>
+            <div>
+                <div class="color-option-buttons">
+                    <div>
+                        <h3>Gray</h3>
+                    </div>
+                    <div>
+                        <button on:click={handleOpen}>Edit</button>
+                    </div>
+                    <div>
+                        <button on:click={handleOpen}>Remove</button>
+                    </div>
+                </div>
+            </div>
 
             <div>
                 <button on:click={handleOpen}>+ Add </button>

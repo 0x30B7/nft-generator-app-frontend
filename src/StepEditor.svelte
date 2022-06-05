@@ -8,6 +8,12 @@
 
     import BlurEditor from "./step-editors/BlurEditor.svelte";
     import ColorFillEditor from "./step-editors/ColorFillEditor.svelte";
+    import GrayScale from "./step-editors/GrayScale.svelte";
+    import NegativeColor from "./step-editors/NegativeColor.svelte";
+    import Brighten from "./step-editors/Brighten.svelte";
+    import HorizontalFlip from "./step-editors/HorizontalFlip.svelte";
+    import RotateClockwise from "./step-editors/RotateClockwise.svelte";
+    import SmoothColor from "./step-editors/SmoothColor.svelte";
 
     export let isOpen;
     export let title;
@@ -40,14 +46,32 @@
             <label for="stepType">Step type</label>
 
             <select name="stepType" bind:value={stepType}>
-                <option value="color-fill">color-fill</option>
-                <option value="blur">blur</option>
+                <option value="color-fill">Color-fill</option>
+                <option value="blur">Blur</option>
+                <option value="grayscale-color">Grayscale</option>
+                <option value="negative-color-fill-step">Negative Color</option>
+                <option value="brighten">Brighten</option>
+                <option value="horizontal-flip">Horizontal flip</option>
+                <option value="rotate-clockwise">Rotate clockwise</option>
+                <option value="smooth-color-fill">Smooth-Color-fill</option>
             </select>
 
             {#if stepType === "color-fill"}
                 <ColorFillEditor properties={stepProperties} />
             {:else if stepType === "blur"}
                 <BlurEditor properties={stepProperties} />
+            {:else if stepType === "grayscale-color"}
+                <GrayScale properties={stepProperties} />
+            {:else if stepType === "negative-color-fill-step"}
+                <NegativeColor properties={stepProperties} />  
+            {:else if stepType === "brighten"}
+                <Brighten properties={stepProperties} />  
+            {:else if stepType === "horizontal-flip"}
+                <HorizontalFlip properties={stepProperties} />
+            {:else if stepType === "rotate-clockwise"}
+                <RotateClockwise properties={stepProperties} />
+            {:else if stepType === "smooth-color-fill"}
+                <SmoothColor properties={stepProperties} />
             {/if}
 
             <div class="actions">
