@@ -39,8 +39,8 @@
             onStepCreated: (step) => {
                 layer.steps.push(step);
             },
-            title: `Alert #${$modals.length + 1}`,
-            message: "This is an alert",
+            title: `Cuztomization #${$modals.length + 1}`,
+            message: "Make your pick",
             onOpenAnother: () => {
                 handleOpen();
             },
@@ -53,8 +53,8 @@
                 layer.steps[layer.steps.indexOf(step)] = newStep;
             },
             step,
-            title: `Alert #${$modals.length + 1}`,
-            message: "This is an alert",
+            title: `Cuztomization #${$modals.length + 1}`,
+            message: "Choose",
             onOpenAnother: () => {
                 handleOpen();
             },

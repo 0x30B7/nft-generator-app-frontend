@@ -124,8 +124,8 @@
 
 	//----------------------------------------form submit part--------------------------------------------------------
 
-	let width = 400;
-	let height = 400;
+	let width = 512;
+	let height = 512;
 
 	function handleBtnSubmit() {
 		let payload = { width, height, resources: [], layers: [] };
@@ -177,8 +177,8 @@
 		e.preventDefault();
 		openModal(LayerStepEditor, {
 			layer,
-			title: `Alert #${$modals.length + 1}`,
-			message: "This is an alert",
+			title: `Cuztomization #${$modals.length + 1}`,
+			message: "Add choices",
 			onOpenAnother: () => {
 				handleCustomizeLayer(e, layer);
 			},
@@ -276,7 +276,7 @@
 		</form>
 	</div>
 </div>
-<!-- result maybe? pleasE? no? FAK -->
+
 
 
 <style>
