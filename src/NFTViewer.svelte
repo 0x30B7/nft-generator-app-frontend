@@ -46,7 +46,7 @@
 
 {#if isOpen}
     <div role="dialog" class="modal">
-        <div class="contents">
+        <div class="contents" style="border: 3px solid black;">
             {#if imageSource}
                 <h2>Done!</h2>
                 <div class="nft-image">

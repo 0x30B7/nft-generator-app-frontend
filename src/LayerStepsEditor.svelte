@@ -65,7 +65,7 @@
 
 {#if isOpen}
     <div role="dialog" class="modal">
-        <div class="contents">
+        <div class="contents" style="border: 3px solid black;">
             <h2>{title}</h2>
 
             <div class="step-buttons-container">

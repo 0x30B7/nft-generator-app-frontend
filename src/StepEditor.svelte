@@ -38,9 +38,9 @@
 
 {#if isOpen}
     <div role="dialog" class="modal">
-        <div class="contents">
+        <div class="contents" style="border: 3px solid black;">
             <h2>{title}</h2>
-            <p>{message} hello</p>
+            <p>{message}</p>
 
             <!-- select step type -->
             <label for="stepType">Step type</label>
